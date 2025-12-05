@@ -115,6 +115,33 @@ const App: React.FC = () => {
           </div>
         </div>
       </main>
+
+      {/* Footer Watermark */}
+      <footer className="shrink-0 px-4 py-3 md:px-6 flex items-center justify-center gap-4 text-xs text-md-sys-onSurfaceVariant/60 border-t border-md-sys-outline/5 bg-md-sys-surface/50 backdrop-blur-sm transition-colors duration-300">
+        <span>
+          Build via{' '}
+          <a
+            href="https://aistudio.google.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-md-sys-primary hover:text-md-sys-primary/80 hover:underline transition-colors duration-200"
+          >
+            Google AI Studio
+          </a>
+        </span>
+        <span className="text-md-sys-outline/30">•</span>
+        <span>
+          Maintained by{' '}
+          <a
+            href="https://github.com/islgl"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-md-sys-primary hover:text-md-sys-primary/80 hover:underline transition-colors duration-200"
+          >
+            islgl
+          </a>
+        </span>
+      </footer>
     </div>
   );
 };
