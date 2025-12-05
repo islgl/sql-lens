@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { SqlEditor } from './components/SqlEditor';
 import { DiffPart } from './types';
-import { ArrowRightLeft, Database, Trash2, Sun, Moon } from 'lucide-react';
+import { ArrowRightLeft, Trash2, Sun, Moon } from 'lucide-react';
 import * as Diff from 'https://esm.sh/diff';
 
 const App: React.FC = () => {
@@ -51,8 +51,12 @@ const App: React.FC = () => {
       {/* Material 3 Top App Bar (Small) */}
       <header className="shrink-0 px-4 py-3 md:px-6 flex items-center justify-between border-b border-md-sys-outline/10 bg-md-sys-surface/95 backdrop-blur-sm transition-colors duration-300">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-md-sys-primaryContainer flex items-center justify-center text-md-sys-onPrimaryContainer shadow-sm">
-            <Database size={20} />
+          <div className="w-10 h-10 rounded-full bg-md-sys-primaryContainer flex items-center justify-center text-md-sys-onPrimaryContainer shadow-sm overflow-hidden">
+            <img 
+              src="https://cdn.jsdelivr.net/gh/islgl/img-hosting/imgs/logo-128x128.svg" 
+              alt="SQL Lens Logo" 
+              className="w-6 h-6"
+            />
           </div>
           <h1 className="text-xl font-normal text-md-sys-onSurface">SQL Lens</h1>
         </div>
