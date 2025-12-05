@@ -1,0 +1,5 @@
+{
+  "name": "SQL Lens",
+  "description": "A modern, aesthetic SQL comparison tool powered by Gemini. Visualize differences and get AI-driven insights on your query changes.",
+  "requestFramePermissions": []
+}

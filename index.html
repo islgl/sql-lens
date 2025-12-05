@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SQL Lens - Smart Diff</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Roboto', 'sans-serif'],
+              mono: ['JetBrains Mono', 'monospace'],
+            },
+            colors: {
+              md: {
+                sys: {
+                  primary: 'var(--md-sys-primary)',
+                  onPrimary: 'var(--md-sys-on-primary)',
+                  primaryContainer: 'var(--md-sys-primary-container)',
+                  onPrimaryContainer: 'var(--md-sys-on-primary-container)',
+                  secondary: 'var(--md-sys-secondary)',
+                  onSecondary: 'var(--md-sys-on-secondary)',
+                  secondaryContainer: 'var(--md-sys-secondary-container)',
+                  onSecondaryContainer: 'var(--md-sys-on-secondary-container)',
+                  tertiary: 'var(--md-sys-tertiary)',
+                  onTertiary: 'var(--md-sys-on-tertiary)',
+                  tertiaryContainer: 'var(--md-sys-tertiary-container)',
+                  onTertiaryContainer: 'var(--md-sys-on-tertiary-container)',
+                  error: 'var(--md-sys-error)',
+                  onError: 'var(--md-sys-on-error)',
+                  errorContainer: 'var(--md-sys-error-container)',
+                  onErrorContainer: 'var(--md-sys-on-error-container)',
+                  background: 'var(--md-sys-background)',
+                  onBackground: 'var(--md-sys-on-background)',
+                  surface: 'var(--md-sys-surface)',
+                  onSurface: 'var(--md-sys-on-surface)',
+                  surfaceVariant: 'var(--md-sys-surface-variant)',
+                  onSurfaceVariant: 'var(--md-sys-on-surface-variant)',
+                  outline: 'var(--md-sys-outline)',
+                }
+              },
+              diff: {
+                add: 'var(--diff-add-bg)',
+                addText: 'var(--diff-add-text)',
+                del: 'var(--diff-del-bg)',
+                delText: 'var(--diff-del-text)',
+              },
+              syntax: {
+                keyword: 'var(--syntax-keyword)',
+                string: 'var(--syntax-string)',
+                number: 'var(--syntax-number)',
+                comment: 'var(--syntax-comment)',
+                default: 'var(--syntax-default)',
+              }
+            },
+            boxShadow: {
+              'elevation-1': '0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30)',
+              'elevation-2': '0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30)',
+              'elevation-3': '0px 4px 8px 3px rgba(0, 0, 0, 0.15), 0px 1px 3px 0px rgba(0, 0, 0, 0.30)',
+            }
+          },
+        },
+      }
+    </script>
+    <style>
+      :root {
+        /* Material Design 3 Light Scheme */
+        --md-sys-primary: #6750A4;
+        --md-sys-on-primary: #FFFFFF;
+        --md-sys-primary-container: #EADDFF;
+        --md-sys-on-primary-container: #21005D;
+        --md-sys-secondary: #625B71;
+        --md-sys-on-secondary: #FFFFFF;
+        --md-sys-secondary-container: #E8DEF8;
+        --md-sys-on-secondary-container: #1D192B;
+        --md-sys-tertiary: #7D5260;
+        --md-sys-on-tertiary: #FFFFFF;
+        --md-sys-tertiary-container: #FFD8E4;
+        --md-sys-on-tertiary-container: #31111D;
+        --md-sys-error: #B3261E;
+        --md-sys-on-error: #FFFFFF;
+        --md-sys-error-container: #F9DEDC;
+        --md-sys-on-error-container: #410E0B;
+        --md-sys-background: #FFFBFE;
+        --md-sys-on-background: #1C1B1F;
+        --md-sys-surface: #FFFBFE;
+        --md-sys-on-surface: #1C1B1F;
+        --md-sys-surface-variant: #E7E0EC;
+        --md-sys-on-surface-variant: #49454F;
+        --md-sys-outline: #79747E;
+
+        /* Syntax Highlighting Light */
+        --syntax-keyword: #1d4ed8; /* blue-700 */
+        --syntax-string: #15803d; /* green-700 */
+        --syntax-number: #c2410c; /* orange-700 */
+        --syntax-comment: #6b7280; /* gray-500 */
+        --syntax-default: #1C1B1F;
+
+        /* Diff Colors Light */
+        --diff-add-bg: #E8F5E9;
+        --diff-add-text: #1B5E20;
+        --diff-del-bg: #FFEBEE;
+        --diff-del-text: #B71C1C;
+      }
+
+      .dark {
+        /* Material Design 3 Dark Scheme */
+        --md-sys-primary: #D0BCFF;
+        --md-sys-on-primary: #381E72;
+        --md-sys-primary-container: #4F378B;
+        --md-sys-on-primary-container: #EADDFF;
+        --md-sys-secondary: #CCC2DC;
+        --md-sys-on-secondary: #332D41;
+        --md-sys-secondary-container: #4A4458;
+        --md-sys-on-secondary-container: #E8DEF8;
+        --md-sys-tertiary: #EFB8C8;
+        --md-sys-on-tertiary: #492532;
+        --md-sys-tertiary-container: #633B48;
+        --md-sys-on-tertiary-container: #FFD8E4;
+        --md-sys-error: #F2B8B5;
+        --md-sys-on-error: #601410;
+        --md-sys-error-container: #8C1D18;
+        --md-sys-on-error-container: #F9DEDC;
+        --md-sys-background: #1C1B1F;
+        --md-sys-on-background: #E6E1E5;
+        --md-sys-surface: #1C1B1F;
+        --md-sys-on-surface: #E6E1E5;
+        --md-sys-surface-variant: #49454F;
+        --md-sys-on-surface-variant: #CAC4D0;
+        --md-sys-outline: #938F99;
+
+        /* Syntax Highlighting Dark */
+        --syntax-keyword: #A5B4FC; /* indigo-300 */
+        --syntax-string: #86EFAC; /* green-300 */
+        --syntax-number: #FDBA74; /* orange-300 */
+        --syntax-comment: #9CA3AF; /* gray-400 */
+        --syntax-default: #E6E1E5;
+
+        /* Diff Colors Dark */
+        --diff-add-bg: rgba(22, 163, 74, 0.25);
+        --diff-add-text: #86EFAC;
+        --diff-del-bg: rgba(220, 38, 38, 0.25);
+        --diff-del-text: #FCA5A5;
+      }
+
+      body {
+        background-color: var(--md-sys-background);
+        color: var(--md-sys-on-background);
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+      
+      /* Custom scrollbar for textareas */
+      textarea::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      textarea::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      textarea::-webkit-scrollbar-thumb {
+        background-color: var(--md-sys-surface-variant);
+        border-radius: 4px;
+      }
+      textarea::-webkit-scrollbar-thumb:hover {
+        background-color: var(--md-sys-outline);
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
+    "react/": "https://aistudiocdn.com/react@^19.2.1/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.31.0",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
