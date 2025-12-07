@@ -1,9 +1,15 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { DiffPart } from '../types';
 import { Copy, Check, AlertCircle, Wand2 } from 'lucide-react';
-import { SqlDialect, DIALECT_KEYWORDS } from './sqlDialects';
+import { SqlDialect } from './sqlDialects';
 import { validateSql, ValidationError } from '../utils/sqlValidator';
 import { format } from 'sql-formatter';
+import CodeMirror, { EditorView, Decoration, DecorationSet, ViewPlugin, ViewUpdate } from '@uiw/react-codemirror';
+import { sql, StandardSQL, MySQL, PostgreSQL } from '@codemirror/lang-sql';
+import { oneDark } from '@codemirror/theme-one-dark';
+import { oneLight } from './oneLight';
+import { granularFold } from '../utils/granularFold';
+import { RangeSetBuilder } from '@codemirror/state';
 
 interface SqlEditorProps {
   label: string;
@@ -13,46 +19,54 @@ interface SqlEditorProps {
   mode?: 'original' | 'modified';
   placeholder?: string;
   dialect?: SqlDialect;
+  isDarkMode?: boolean;
 }
 
-const highlightSyntax = (text: string, dialect: SqlDialect = 'standard'): React.ReactNode[] => {
-  if (!text) return [];
-  const regex = /(--.*)|('[^']*')|(\b\d+\b)|(\b[a-zA-Z_]\w*\b)|(\s+)|(.)/g;
-  const keywords = DIALECT_KEYWORDS[dialect];
-  
-  const tokens: React.ReactNode[] = [];
-  let match;
-  let i = 0;
-  while ((match = regex.exec(text)) !== null) {
-    const [full, comment, string, number, word, space] = match;
-    const key = i++;
+const createDiffExtension = (diff: DiffPart[] | undefined, mode: 'original' | 'modified') => {
+  return ViewPlugin.fromClass(class {
+    decorations: DecorationSet;
 
-    if (comment) {
-      tokens.push(<span key={key} className="text-syntax-comment italic">{full}</span>);
-    } else if (string) {
-      tokens.push(<span key={key} className="text-syntax-string">{full}</span>);
-    } else if (number) {
-      tokens.push(<span key={key} className="text-syntax-number">{full}</span>);
-    } else if (word) {
-      if (keywords.has(word.toUpperCase())) {
-        tokens.push(<span key={key} className="text-syntax-keyword font-bold">{full}</span>);
-      } else {
-         // Basic heuristics for functions and variables - could be improved with better parser
-         if (/^[A-Z][a-zA-Z0-9_]*$/.test(word)) { // PascalCase often types/tables in some conventions, or just caps
-             tokens.push(<span key={key} className="text-syntax-default">{full}</span>);
-         } else if (/^[a-z][a-zA-Z0-9_]*$/.test(word) && text[match.index + word.length] === '(') {
-             tokens.push(<span key={key} className="text-syntax-function font-medium">{full}</span>);
-         } else {
-             tokens.push(<span key={key} className="text-syntax-default">{full}</span>);
-         }
-      }
-    } else if (space) {
-        tokens.push(<span key={key}>{full}</span>);
-    } else {
-        tokens.push(<span key={key} className="text-syntax-default">{full}</span>);
+    constructor(view: EditorView) {
+      this.decorations = this.computeDecorations(view);
     }
-  }
-  return tokens;
+
+    update(update: ViewUpdate) {
+      if (update.docChanged || update.viewportChanged) {
+        this.decorations = this.computeDecorations(update.view);
+      }
+    }
+
+    computeDecorations(view: EditorView): DecorationSet {
+      if (!diff || diff.length === 0) return Decoration.none;
+
+      const builder = new RangeSetBuilder<Decoration>();
+      let pos = 0;
+
+      for (const part of diff) {
+        const length = part.value.length;
+        // In original mode, skip added parts (they don't exist in text)
+        // In modified mode, skip removed parts (they don't exist in text)
+        if ((mode === 'original' && part.added) || (mode === 'modified' && part.removed)) {
+            continue;
+        }
+
+        if ((mode === 'original' && part.removed) || (mode === 'modified' && part.added)) {
+           // This part exists in the text AND needs highlighting
+           const className = mode === 'original' ? 'cm-diff-del' : 'cm-diff-add';
+           // Ensure we don't go out of bounds (though diff logic should ensure sync)
+           if (pos + length <= view.state.doc.length) {
+                builder.add(pos, pos + length, Decoration.mark({ class: className }));
+           }
+        }
+        
+        pos += length;
+      }
+      
+      return builder.finish();
+    }
+  }, {
+    decorations: v => v.decorations
+  });
 };
 
 export const SqlEditor: React.FC<SqlEditorProps> = ({ 
@@ -62,11 +76,9 @@ export const SqlEditor: React.FC<SqlEditorProps> = ({
   diff,
   mode = 'original',
   placeholder,
-  dialect = 'standard'
+  dialect = 'standard',
+  isDarkMode = false
 }) => {
-  const backdropRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const lineNumbersRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState(false);
   const [errors, setErrors] = useState<ValidationError[]>([]);
 
@@ -82,16 +94,6 @@ export const SqlEditor: React.FC<SqlEditorProps> = ({
 
     return () => clearTimeout(timer);
   }, [value, dialect]);
-
-  const handleScroll = () => {
-    if (backdropRef.current && textareaRef.current) {
-      backdropRef.current.scrollTop = textareaRef.current.scrollTop;
-      backdropRef.current.scrollLeft = textareaRef.current.scrollLeft;
-    }
-    if (lineNumbersRef.current && textareaRef.current) {
-      lineNumbersRef.current.scrollTop = textareaRef.current.scrollTop;
-    }
-  };
 
   const handleCopy = async () => {
     if (!value) return;
@@ -130,50 +132,31 @@ export const SqlEditor: React.FC<SqlEditorProps> = ({
     }
   };
 
-  useEffect(() => {
-    handleScroll();
-  }, [value]);
+  const extensions = useMemo(() => {
+      const dialectMap = {
+        standard: StandardSQL,
+        mysql: MySQL,
+        postgresql: PostgreSQL,
+        spark: StandardSQL // Spark is not explicitly supported, fallback to Standard
+      };
+      
+      const exts = [
+        sql({ dialect: dialectMap[dialect] || StandardSQL }),
+        granularFold
+      ];
+      if (diff && diff.length > 0) {
+          exts.push(createDiffExtension(diff, mode));
+      }
+      return exts;
+  }, [diff, mode, dialect]);
 
-  const renderBackdrop = () => {
-    if (!diff || diff.length === 0) {
-        return highlightSyntax(value, dialect);
-    }
-
-    return diff.map((part, index) => {
-       const highlightedContent = highlightSyntax(part.value, dialect);
-
-       if (mode === 'original') {
-         if (part.added) return null; 
-         if (part.removed) {
-           return (
-             <span key={index} className="bg-diff-del text-diff-delText">
-               {highlightedContent}
-             </span>
-           );
-         }
-         return <span key={index}>{highlightedContent}</span>;
-       } else {
-         if (part.removed) return null; 
-         if (part.added) {
-           return (
-             <span key={index} className="bg-diff-add text-diff-addText">
-               {highlightedContent}
-             </span>
-           );
-         }
-         return <span key={index}>{highlightedContent}</span>;
-       }
-    });
-  };
-
-  const renderLineNumbers = () => {
-    const lineCount = value.split('\n').length;
-    return Array.from({ length: lineCount }, (_, i) => (
-      <div key={i} className="text-right pr-4 pl-3 select-none text-md-sys-onSurfaceVariant/40 text-sm h-6">
-        {i + 1}
-      </div>
-    ));
-  };
+  // Determine theme based on isDarkMode prop (or system preference if not passed)
+  // Since we don't have isDarkMode passed yet, we can check document class
+  const theme = useMemo(() => {
+      // Small hack to detect if 'dark' class is on html element, 
+      // ideally passed as prop from App. But for now we use the passed prop or default.
+      return isDarkMode ? oneDark : oneLight;
+  }, [isDarkMode]);
 
   return (
     <div className="flex flex-col h-full bg-md-sys-surface md:bg-md-sys-surface/50 relative group transition-all duration-300">
@@ -225,35 +208,22 @@ export const SqlEditor: React.FC<SqlEditorProps> = ({
       </div>
       
       {/* Editor Area */}
-      <div className="relative flex-1 w-full overflow-hidden bg-md-sys-surface flex">
-        {/* Line Numbers */}
-        <div 
-           ref={lineNumbersRef}
-           className="shrink-0 pt-6 font-mono leading-6 bg-md-sys-surfaceVariant/10 border-r border-md-sys-outline/10 overflow-hidden text-right select-none"
-           aria-hidden="true"
-        >
-          {renderLineNumbers()}
-        </div>
-
-        <div className="relative flex-1 h-full overflow-hidden">
-            <div 
-              ref={backdropRef}
-              className="absolute inset-0 p-6 font-mono text-sm leading-6 whitespace-pre-wrap break-words bg-transparent pointer-events-none overflow-hidden select-none"
-              aria-hidden="true"
-            >
-              {renderBackdrop()}
-            </div>
-
-            <textarea
-              ref={textareaRef}
-              className="absolute inset-0 w-full h-full p-6 font-mono text-sm leading-6 whitespace-pre-wrap break-words bg-transparent text-transparent caret-md-sys-primary outline-none resize-none placeholder:text-md-sys-onSurfaceVariant/40 selection:bg-md-sys-primaryContainer/50"
-              value={value}
-              onChange={(e) => onChange(e.target.value)}
-              onScroll={handleScroll}
-              placeholder={placeholder}
-              spellCheck={false}
-            />
-        </div>
+      <div className="relative flex-1 w-full overflow-hidden bg-md-sys-surface flex flex-col">
+        <CodeMirror
+            value={value}
+            height="100%"
+            theme={theme}
+            extensions={extensions}
+            onChange={onChange}
+            placeholder={placeholder}
+            basicSetup={{
+                lineNumbers: true,
+                foldGutter: true,
+                highlightActiveLine: false,
+                highlightActiveLineGutter: false,
+            }}
+            className="flex-1 h-full text-sm font-mono"
+        />
       </div>
 
       {/* Error Panel */}
@@ -270,6 +240,13 @@ export const SqlEditor: React.FC<SqlEditorProps> = ({
           ))}
         </div>
       )}
+      
+      <style>{`
+        .cm-diff-add { background-color: var(--diff-add-bg); color: var(--diff-add-text); }
+        .cm-diff-del { background-color: var(--diff-del-bg); color: var(--diff-del-text); }
+        .cm-editor { height: 100%; outline: none; }
+        .cm-scroller { overflow: auto !important; }
+      `}</style>
     </div>
   );
 };

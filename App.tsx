@@ -148,6 +148,7 @@ const App: React.FC = () => {
               mode="original"
               placeholder={showDiff ? "-- Enter original SQL..." : "-- Enter SQL..."}
               dialect={selectedDialect}
+              isDarkMode={isDarkMode}
             />
           </div>
 
@@ -162,6 +163,7 @@ const App: React.FC = () => {
                 mode="modified"
                 placeholder="-- Enter modified SQL..."
                 dialect={selectedDialect}
+                isDarkMode={isDarkMode}
               />
             </div>
           )}
