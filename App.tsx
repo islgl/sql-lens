@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { SqlEditor } from './components/SqlEditor';
 import { DiffPart } from './types';
-import { ArrowRightLeft, Trash2, Sun, Moon, Database } from 'lucide-react';
+import { ArrowRightLeft, Trash2, Sun, Moon, Database, FileDiff } from 'lucide-react';
 import * as Diff from 'https://esm.sh/diff';
 import { SqlDialect } from './components/sqlDialects';
 
@@ -9,6 +9,7 @@ const App: React.FC = () => {
   const [originalSql, setOriginalSql] = useState<string>("");
   const [modifiedSql, setModifiedSql] = useState<string>("");
   const [selectedDialect, setSelectedDialect] = useState<SqlDialect>('standard');
+  const [showDiff, setShowDiff] = useState(true);
 
   // Dark Mode State
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -33,10 +34,10 @@ const App: React.FC = () => {
 
   // Calculate Diff globally for sync between two editors
   const diffParts: DiffPart[] = useMemo(() => {
-     if (!originalSql || !modifiedSql) return [];
+     if (!showDiff || !originalSql || !modifiedSql) return [];
      // diffWordsWithSpace preserves spaces which is crucial for SQL legibility
      return Diff.diffWordsWithSpace(originalSql, modifiedSql);
-  }, [originalSql, modifiedSql]);
+  }, [originalSql, modifiedSql, showDiff]);
 
   const handleSwap = useCallback(() => {
     setOriginalSql(modifiedSql);
@@ -99,6 +100,23 @@ const App: React.FC = () => {
 
            <div className="h-6 w-px bg-md-sys-outline/20 mx-1"></div>
 
+           {/* Diff Toggle */}
+           <button 
+             onClick={() => setShowDiff(!showDiff)}
+             className={`h-10 px-3 rounded-full border transition-all flex items-center gap-2 text-sm font-medium
+               ${showDiff 
+                 ? 'border-md-sys-primary/30 bg-md-sys-primaryContainer/30 text-md-sys-primary' 
+                 : 'border-md-sys-outline/30 text-md-sys-onSurfaceVariant hover:bg-md-sys-surfaceVariant/20'
+               }
+             `}
+             title={showDiff ? "Hide Diff" : "Show Diff"}
+           >
+             <FileDiff size={18} />
+             <span className="hidden sm:inline">Diff</span>
+           </button>
+
+           <div className="h-6 w-px bg-md-sys-outline/20 mx-1"></div>
+
            <button 
              onClick={handleSwap}
              className="h-10 px-4 rounded-full border border-md-sys-outline/30 text-md-sys-primary hover:bg-md-sys-primaryContainer/30 transition-colors flex items-center gap-2 text-sm font-medium"
@@ -119,32 +137,34 @@ const App: React.FC = () => {
 
       <main className="flex-1 p-4 md:p-6 max-w-[1920px] mx-auto w-full flex flex-col min-h-0">
         {/* Editors Container */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 min-h-0">
+        <div className={`grid gap-4 flex-1 min-h-0 ${showDiff ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'}`}>
           {/* Original SQL */}
           <div className="flex flex-col h-full rounded-3xl bg-md-sys-surfaceVariant/30 overflow-hidden border border-md-sys-outline/10 shadow-elevation-1">
             <SqlEditor 
-              label="Original"
+              label={showDiff ? "Original" : "SQL Editor"}
               value={originalSql}
               onChange={setOriginalSql}
               diff={diffParts}
               mode="original"
-              placeholder="-- Enter original SQL..."
+              placeholder={showDiff ? "-- Enter original SQL..." : "-- Enter SQL..."}
               dialect={selectedDialect}
             />
           </div>
 
           {/* Modified SQL */}
-          <div className="flex flex-col h-full rounded-3xl bg-md-sys-surfaceVariant/30 overflow-hidden border border-md-sys-outline/10 shadow-elevation-1">
-            <SqlEditor 
-              label="Modified"
-              value={modifiedSql}
-              onChange={setModifiedSql}
-              diff={diffParts}
-              mode="modified"
-              placeholder="-- Enter modified SQL..."
-              dialect={selectedDialect}
-            />
-          </div>
+          {showDiff && (
+            <div className="flex flex-col h-full rounded-3xl bg-md-sys-surfaceVariant/30 overflow-hidden border border-md-sys-outline/10 shadow-elevation-1">
+              <SqlEditor 
+                label="Modified"
+                value={modifiedSql}
+                onChange={setModifiedSql}
+                diff={diffParts}
+                mode="modified"
+                placeholder="-- Enter modified SQL..."
+                dialect={selectedDialect}
+              />
+            </div>
+          )}
         </div>
       </main>
 
