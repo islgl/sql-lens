@@ -64,9 +64,3 @@
    ```
 
 4. 在浏览器中访问 `http://localhost:5173` (或终端中显示的端口)。
-
----
-
-<div align="center">
-  <p>Maintained by <a href="https://github.com/islgl">islgl</a></p>
-</div>

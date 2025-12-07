@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { SqlEditor } from './components/SqlEditor';
 import { DiffPart } from './types';
-import { Trash2, Sun, Moon, FileDiff } from 'lucide-react';
+import { Trash2, Sun, Moon, FileDiff, Github } from 'lucide-react';
 import * as Diff from 'https://esm.sh/diff';
 import { SqlDialect } from './components/sqlDialects';
 import { DialectSelector } from './components/DialectSelector';
@@ -100,6 +100,16 @@ const App: React.FC = () => {
            >
              {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
            </button>
+
+           <a 
+             href="https://github.com/islgl/sql-lens"
+             target="_blank"
+             rel="noopener noreferrer"
+             className="h-10 w-10 flex items-center justify-center rounded-xl text-md-sys-onSurfaceVariant hover:text-md-sys-primary hover:bg-md-sys-primary/10 transition-all duration-200 active:scale-95"
+             title="GitHub"
+           >
+             <Github size={20} />
+           </a>
         </div>
       </header>
 
