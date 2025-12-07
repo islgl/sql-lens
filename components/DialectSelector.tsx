@@ -52,10 +52,10 @@ export const DialectSelector: React.FC<DialectSelectorProps> = ({ value, onChang
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={`
-          flex items-center gap-2 h-10 pl-3 pr-3 rounded-full border-2 transition-all duration-200
+          flex items-center gap-2 h-10 pl-3 pr-3 rounded-xl border transition-all duration-200 active:scale-95
           ${isOpen 
-            ? 'border-md-sys-primary ring-2 ring-md-sys-primary/20 bg-md-sys-surface' 
-            : 'border-md-sys-outline/30 bg-md-sys-surfaceVariant/30 hover:bg-md-sys-surfaceVariant/50 hover:border-md-sys-outline/50'
+            ? 'border-md-sys-primary/50 ring-2 ring-md-sys-primary/10 bg-md-sys-surface' 
+            : 'border-md-sys-outline/20 bg-md-sys-surface hover:bg-md-sys-onSurface/5 hover:border-md-sys-outline/40'
           }
         `}
       >
@@ -78,7 +78,7 @@ export const DialectSelector: React.FC<DialectSelectorProps> = ({ value, onChang
       {/* Dropdown Menu */}
       <div 
         className={`
-          absolute top-full left-0 mt-2 w-56 p-1.5 rounded-2xl bg-md-sys-surface border-2 border-md-sys-outline/10 shadow-elevation-2 z-[100]
+          absolute top-full left-0 mt-2 w-56 p-1.5 rounded-2xl bg-md-sys-surface border border-md-sys-outline/10 shadow-xl shadow-black/10 z-[100]
           origin-top-left transition-all duration-200 ease-out
           ${isOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'}
         `}

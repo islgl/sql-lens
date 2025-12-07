@@ -173,16 +173,16 @@ export const SqlEditor: React.FC<SqlEditorProps> = ({
   return (
     <div className="flex flex-col h-full bg-md-sys-surface relative group transition-all duration-300">
       {/* Header / Toolbar */}
-      <div className="px-5 py-3 flex justify-between items-center border-b-2 border-md-sys-outline/10 bg-md-sys-surface/50 backdrop-blur-sm">
-        <div className="flex items-center gap-3">
-          <div className={`w-3 h-3 rounded-full ${mode === 'original' ? 'bg-red-400' : 'bg-green-400'}`} />
-          <span className="text-sm font-medium text-md-sys-onSurfaceVariant tracking-wide">
+      <div className="px-4 py-2.5 flex justify-between items-center border-b border-md-sys-outline/5 bg-md-sys-surface z-10">
+        <div className="flex items-center gap-2.5">
+          <div className={`w-2 h-2 rounded-full ${mode === 'original' ? 'bg-red-400 shadow-[0_0_8px_rgba(248,113,113,0.4)]' : 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.4)]'}`} />
+          <span className="text-xs font-semibold text-md-sys-onSurfaceVariant/70 tracking-wider uppercase">
             {label}
           </span>
           {errors.length > 0 && (
-            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-md-sys-errorContainer text-md-sys-onErrorContainer text-xs font-medium animate-in fade-in zoom-in duration-200">
-               <AlertCircle size={12} />
-               <span>{errors.length}</span>
+            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-md-sys-errorContainer text-md-sys-onErrorContainer text-[10px] font-bold uppercase tracking-wide animate-in fade-in zoom-in duration-200">
+               <AlertCircle size={10} />
+               <span>{errors.length} Errors</span>
             </div>
           )}
         </div>
@@ -192,12 +192,12 @@ export const SqlEditor: React.FC<SqlEditorProps> = ({
             onClick={handleFormat}
             disabled={!value}
             className={`
-              flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300
+              flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200
               ${formatted
                 ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300'
                 : !value 
                   ? 'opacity-30 cursor-not-allowed text-md-sys-onSurfaceVariant' 
-                  : 'cursor-pointer text-md-sys-onSurfaceVariant hover:bg-indigo-100 hover:text-indigo-600 dark:hover:bg-indigo-900/30 dark:hover:text-indigo-400'
+                  : 'cursor-pointer text-md-sys-onSurfaceVariant/60 hover:text-md-sys-onSurface hover:bg-md-sys-onSurface/5 active:scale-95'
               }
             `}
             title="Format SQL"
@@ -210,12 +210,12 @@ export const SqlEditor: React.FC<SqlEditorProps> = ({
             onClick={handleCopy}
             disabled={!value}
             className={`
-              flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300
+              flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200
               ${copied 
                 ? 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300' 
                 : !value 
                   ? 'opacity-30 cursor-not-allowed text-md-sys-onSurfaceVariant' 
-                  : 'cursor-pointer text-md-sys-onSurfaceVariant hover:bg-emerald-100 hover:text-emerald-600 dark:hover:bg-emerald-900/30 dark:hover:text-emerald-400'
+                  : 'cursor-pointer text-md-sys-onSurfaceVariant/60 hover:text-md-sys-onSurface hover:bg-md-sys-onSurface/5 active:scale-95'
               }
             `}
             title="Copy to clipboard"
@@ -247,7 +247,7 @@ export const SqlEditor: React.FC<SqlEditorProps> = ({
 
       {/* Error Panel */}
       {errors.length > 0 && (
-        <div className="shrink-0 border-t-2 border-md-sys-error/20 bg-md-sys-errorContainer/10 max-h-32 overflow-y-auto backdrop-blur-sm transition-all duration-300">
+        <div className="shrink-0 border-t border-md-sys-error/10 bg-md-sys-errorContainer/5 max-h-32 overflow-y-auto backdrop-blur-sm transition-all duration-300">
           {errors.map((err, i) => (
             <div key={i} className="px-5 py-2 flex items-start gap-2 text-xs text-md-sys-error hover:bg-md-sys-errorContainer/20 transition-colors border-b border-md-sys-error/5 last:border-0 font-mono">
               <AlertCircle size={14} className="shrink-0 mt-0.5" />

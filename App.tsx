@@ -49,7 +49,7 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-md-sys-background text-md-sys-onBackground transition-colors duration-300 h-screen overflow-hidden">
       {/* Material 3 Top App Bar (Small) */}
-      <header className="shrink-0 px-4 py-3 md:px-6 flex items-center justify-between border-b-2 border-md-sys-outline/10 bg-md-sys-surface/95 backdrop-blur-sm transition-colors duration-300 relative z-50">
+      <header className="shrink-0 px-4 py-3 md:px-6 flex items-center justify-between border-b border-md-sys-outline/5 bg-md-sys-surface/80 backdrop-blur-md transition-colors duration-300 relative z-50">
         <div className="flex items-center gap-3">
           <SQLLensLogo 
             variant="database-lens" 
@@ -58,22 +58,22 @@ const App: React.FC = () => {
           />
         </div>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           {/* Dialect Selector */}
           <DialectSelector 
             value={selectedDialect} 
             onChange={setSelectedDialect} 
           />
 
-          <div className="h-6 w-px bg-md-sys-outline/20 mx-1"></div>
+          <div className="h-6 w-px bg-md-sys-outline/10 mx-2"></div>
 
            {/* Diff Toggle */}
            <button 
              onClick={() => setShowDiff(!showDiff)}
-             className={`h-10 px-3 rounded-full border-2 transition-all flex items-center gap-2 text-sm font-medium
+             className={`h-10 px-4 rounded-xl transition-all duration-200 flex items-center gap-2 text-sm font-medium border active:scale-95
                ${showDiff 
-                 ? 'border-md-sys-primary/30 bg-md-sys-primaryContainer/30 text-md-sys-primary' 
-                 : 'border-md-sys-outline/30 text-md-sys-onSurfaceVariant dark:text-md-sys-onSurface hover:bg-md-sys-surfaceVariant/20'
+                 ? 'bg-md-sys-primary text-md-sys-onPrimary border-transparent shadow-md shadow-md-sys-primary/20' 
+                 : 'bg-transparent border-transparent text-md-sys-onSurfaceVariant hover:bg-md-sys-onSurface/5 hover:text-md-sys-onSurface'
                }
              `}
              title={showDiff ? "Hide Diff" : "Show Diff"}
@@ -82,11 +82,11 @@ const App: React.FC = () => {
              <span className="hidden sm:inline">Diff</span>
            </button>
 
-           <div className="h-6 w-px bg-md-sys-outline/20 mx-1"></div>
+           <div className="h-6 w-px bg-md-sys-outline/10 mx-2"></div>
 
            <button 
             onClick={handleClear}
-            className="h-10 w-10 flex items-center justify-center rounded-full text-md-sys-onSurfaceVariant dark:text-md-sys-onSurface transition-all duration-300 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400"
+            className="h-10 w-10 flex items-center justify-center rounded-xl text-md-sys-onSurfaceVariant hover:text-md-sys-error hover:bg-md-sys-error/10 transition-all duration-200 active:scale-95"
             title="Clear all"
            >
              <Trash2 size={20} />
@@ -95,12 +95,7 @@ const App: React.FC = () => {
            {/* Dark Mode Toggle */}
            <button 
              onClick={() => setIsDarkMode(!isDarkMode)}
-             className={`h-10 w-10 flex items-center justify-center rounded-full text-md-sys-onSurfaceVariant dark:text-md-sys-onSurface transition-all duration-300
-               ${isDarkMode 
-                 ? 'dark:hover:bg-amber-400/20 dark:hover:text-amber-300' 
-                 : 'hover:bg-indigo-100 hover:text-indigo-600'
-               }
-             `}
+             className="h-10 w-10 flex items-center justify-center rounded-xl text-md-sys-onSurfaceVariant hover:text-md-sys-primary hover:bg-md-sys-primary/10 transition-all duration-200 active:scale-95"
              title={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
            >
              {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
@@ -112,7 +107,7 @@ const App: React.FC = () => {
         {/* Editors Container */}
         <div className={`grid gap-4 flex-1 min-h-0 ${showDiff ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'}`}>
           {/* Original SQL */}
-          <div className="flex flex-col h-full rounded-xl bg-md-sys-surfaceVariant/30 overflow-hidden border-2 border-md-sys-outline/10 shadow-elevation-1">
+          <div className="flex flex-col h-full rounded-2xl bg-md-sys-surface border border-md-sys-outline/5 shadow-xl shadow-black/5 overflow-hidden transition-all duration-300">
             <SqlEditor 
               label={showDiff ? "Original" : "SQL Editor"}
               value={originalSql}
@@ -127,7 +122,7 @@ const App: React.FC = () => {
 
           {/* Modified SQL */}
           {showDiff && (
-            <div className="flex flex-col h-full rounded-xl bg-md-sys-surfaceVariant/30 overflow-hidden border-2 border-md-sys-outline/10 shadow-elevation-1">
+            <div className="flex flex-col h-full rounded-2xl bg-md-sys-surface border border-md-sys-outline/5 shadow-xl shadow-black/5 overflow-hidden transition-all duration-300">
               <SqlEditor 
                 label="Modified"
                 value={modifiedSql}
