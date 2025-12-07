@@ -1,12 +1,14 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { SqlEditor } from './components/SqlEditor';
 import { DiffPart } from './types';
-import { ArrowRightLeft, Trash2, Sun, Moon } from 'lucide-react';
+import { ArrowRightLeft, Trash2, Sun, Moon, Database } from 'lucide-react';
 import * as Diff from 'https://esm.sh/diff';
+import { SqlDialect } from './components/sqlDialects';
 
 const App: React.FC = () => {
   const [originalSql, setOriginalSql] = useState<string>("");
   const [modifiedSql, setModifiedSql] = useState<string>("");
+  const [selectedDialect, setSelectedDialect] = useState<SqlDialect>('standard');
 
   // Dark Mode State
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -31,7 +33,7 @@ const App: React.FC = () => {
 
   // Calculate Diff globally for sync between two editors
   const diffParts: DiffPart[] = useMemo(() => {
-     if (!originalSql && !modifiedSql) return [];
+     if (!originalSql || !modifiedSql) return [];
      // diffWordsWithSpace preserves spaces which is crucial for SQL legibility
      return Diff.diffWordsWithSpace(originalSql, modifiedSql);
   }, [originalSql, modifiedSql]);
@@ -62,6 +64,30 @@ const App: React.FC = () => {
         </div>
         
         <div className="flex items-center gap-2">
+          {/* Dialect Selector */}
+          <div className="relative group">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-md-sys-onSurfaceVariant">
+              <Database size={16} />
+            </div>
+            <select
+              value={selectedDialect}
+              onChange={(e) => setSelectedDialect(e.target.value as SqlDialect)}
+              className="appearance-none pl-9 pr-8 h-10 rounded-full bg-md-sys-surfaceVariant/30 border border-md-sys-outline/10 text-sm font-medium text-md-sys-onSurface hover:bg-md-sys-surfaceVariant/50 focus:outline-none focus:ring-2 focus:ring-md-sys-primary/50 transition-all cursor-pointer"
+            >
+              <option value="standard">Standard SQL</option>
+              <option value="mysql">MySQL</option>
+              <option value="postgresql">PostgreSQL</option>
+              <option value="spark">Spark SQL</option>
+            </select>
+            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-md-sys-onSurfaceVariant">
+              <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20">
+                <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" fillRule="evenodd" />
+              </svg>
+            </div>
+          </div>
+
+          <div className="h-6 w-px bg-md-sys-outline/20 mx-1"></div>
+
            {/* Dark Mode Toggle */}
            <button 
              onClick={() => setIsDarkMode(!isDarkMode)}
@@ -103,6 +129,7 @@ const App: React.FC = () => {
               diff={diffParts}
               mode="original"
               placeholder="-- Enter original SQL..."
+              dialect={selectedDialect}
             />
           </div>
 
@@ -115,6 +142,7 @@ const App: React.FC = () => {
               diff={diffParts}
               mode="modified"
               placeholder="-- Enter modified SQL..."
+              dialect={selectedDialect}
             />
           </div>
         </div>

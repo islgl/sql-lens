@@ -9,9 +9,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "dt-sql-parser": "^4.4.0",
+    "lucide-react": "^0.555.0",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
-    "lucide-react": "^0.555.0"
+    "sql-formatter": "^15.6.10"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

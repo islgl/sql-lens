@@ -1,184 +1,231 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SQL Lens</title>
-    <link rel="icon" type="image/svg+xml" href="https://cdn.jsdelivr.net/gh/islgl/img-hosting/imgs/logo-128x128.svg" />
-    <link rel="icon" type="image/ico" sizes="16x16" href="https://cdn.jsdelivr.net/gh/islgl/img-hosting/imgs/logo-16x16.ico">
-     <link rel="icon" type="image/ico" sizes="32x32" href="https://cdn.jsdelivr.net/gh/islgl/img-hosting/imgs/logo-32x32.ico">
-      <link rel="icon" type="image/ico" sizes="48x48"
-        href="https://cdn.jsdelivr.net/gh/islgl/img-hosting/imgs/logo-48x48.ico">
-        <link rel="icon" type="image/ico" sizes="192x192"
-          href="https://cdn.jsdelivr.net/gh/islgl/img-hosting/imgs/logo-192x192.ico">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <script>
-      tailwind.config = {
-        darkMode: 'class',
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['Roboto', 'sans-serif'],
-              mono: ['JetBrains Mono', 'monospace'],
-            },
-            colors: {
-              md: {
-                sys: {
-                  primary: 'var(--md-sys-primary)',
-                  onPrimary: 'var(--md-sys-on-primary)',
-                  primaryContainer: 'var(--md-sys-primary-container)',
-                  onPrimaryContainer: 'var(--md-sys-on-primary-container)',
-                  secondary: 'var(--md-sys-secondary)',
-                  onSecondary: 'var(--md-sys-on-secondary)',
-                  secondaryContainer: 'var(--md-sys-secondary-container)',
-                  onSecondaryContainer: 'var(--md-sys-on-secondary-container)',
-                  tertiary: 'var(--md-sys-tertiary)',
-                  onTertiary: 'var(--md-sys-on-tertiary)',
-                  tertiaryContainer: 'var(--md-sys-tertiary-container)',
-                  onTertiaryContainer: 'var(--md-sys-on-tertiary-container)',
-                  error: 'var(--md-sys-error)',
-                  onError: 'var(--md-sys-on-error)',
-                  errorContainer: 'var(--md-sys-error-container)',
-                  onErrorContainer: 'var(--md-sys-on-error-container)',
-                  background: 'var(--md-sys-background)',
-                  onBackground: 'var(--md-sys-on-background)',
-                  surface: 'var(--md-sys-surface)',
-                  onSurface: 'var(--md-sys-on-surface)',
-                  surfaceVariant: 'var(--md-sys-surface-variant)',
-                  onSurfaceVariant: 'var(--md-sys-on-surface-variant)',
-                  outline: 'var(--md-sys-outline)',
-                }
-              },
-              diff: {
-                add: 'var(--diff-add-bg)',
-                addText: 'var(--diff-add-text)',
-                del: 'var(--diff-del-bg)',
-                delText: 'var(--diff-del-text)',
-              },
-              syntax: {
-                keyword: 'var(--syntax-keyword)',
-                string: 'var(--syntax-string)',
-                number: 'var(--syntax-number)',
-                comment: 'var(--syntax-comment)',
-                default: 'var(--syntax-default)',
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SQL Lens</title>
+  <link rel="icon" type="image/svg+xml" href="https://cdn.jsdelivr.net/gh/islgl/img-hosting/imgs/logo-128x128.svg" />
+  <link rel="icon" type="image/ico" sizes="16x16"
+    href="https://cdn.jsdelivr.net/gh/islgl/img-hosting/imgs/logo-16x16.ico">
+  <link rel="icon" type="image/ico" sizes="32x32"
+    href="https://cdn.jsdelivr.net/gh/islgl/img-hosting/imgs/logo-32x32.ico">
+  <link rel="icon" type="image/ico" sizes="48x48"
+    href="https://cdn.jsdelivr.net/gh/islgl/img-hosting/imgs/logo-48x48.ico">
+  <link rel="icon" type="image/ico" sizes="192x192"
+    href="https://cdn.jsdelivr.net/gh/islgl/img-hosting/imgs/logo-192x192.ico">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Roboto', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            md: {
+              sys: {
+                primary: 'var(--md-sys-primary)',
+                onPrimary: 'var(--md-sys-on-primary)',
+                primaryContainer: 'var(--md-sys-primary-container)',
+                onPrimaryContainer: 'var(--md-sys-on-primary-container)',
+                secondary: 'var(--md-sys-secondary)',
+                onSecondary: 'var(--md-sys-on-secondary)',
+                secondaryContainer: 'var(--md-sys-secondary-container)',
+                onSecondaryContainer: 'var(--md-sys-on-secondary-container)',
+                tertiary: 'var(--md-sys-tertiary)',
+                onTertiary: 'var(--md-sys-on-tertiary)',
+                tertiaryContainer: 'var(--md-sys-tertiary-container)',
+                onTertiaryContainer: 'var(--md-sys-on-tertiary-container)',
+                error: 'var(--md-sys-error)',
+                onError: 'var(--md-sys-on-error)',
+                errorContainer: 'var(--md-sys-error-container)',
+                onErrorContainer: 'var(--md-sys-on-error-container)',
+                background: 'var(--md-sys-background)',
+                onBackground: 'var(--md-sys-on-background)',
+                surface: 'var(--md-sys-surface)',
+                onSurface: 'var(--md-sys-on-surface)',
+                surfaceVariant: 'var(--md-sys-surface-variant)',
+                onSurfaceVariant: 'var(--md-sys-on-surface-variant)',
+                outline: 'var(--md-sys-outline)',
               }
             },
-            boxShadow: {
-              'elevation-1': '0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30)',
-              'elevation-2': '0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30)',
-              'elevation-3': '0px 4px 8px 3px rgba(0, 0, 0, 0.15), 0px 1px 3px 0px rgba(0, 0, 0, 0.30)',
+            diff: {
+              add: 'var(--diff-add-bg)',
+              addText: 'var(--diff-add-text)',
+              del: 'var(--diff-del-bg)',
+              delText: 'var(--diff-del-text)',
+            },
+            syntax: {
+              keyword: 'var(--syntax-keyword)',
+              string: 'var(--syntax-string)',
+              number: 'var(--syntax-number)',
+              comment: 'var(--syntax-comment)',
+              default: 'var(--syntax-default)',
+              function: 'var(--syntax-function)',
+              variable: 'var(--syntax-variable)',
             }
           },
+          boxShadow: {
+            'elevation-1': '0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30)',
+            'elevation-2': '0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30)',
+            'elevation-3': '0px 4px 8px 3px rgba(0, 0, 0, 0.15), 0px 1px 3px 0px rgba(0, 0, 0, 0.30)',
+          }
         },
-      }
-    </script>
-    <style>
-      :root {
-        /* Material Design 3 Light Scheme */
-        --md-sys-primary: #6750A4;
-        --md-sys-on-primary: #FFFFFF;
-        --md-sys-primary-container: #EADDFF;
-        --md-sys-on-primary-container: #21005D;
-        --md-sys-secondary: #625B71;
-        --md-sys-on-secondary: #FFFFFF;
-        --md-sys-secondary-container: #E8DEF8;
-        --md-sys-on-secondary-container: #1D192B;
-        --md-sys-tertiary: #7D5260;
-        --md-sys-on-tertiary: #FFFFFF;
-        --md-sys-tertiary-container: #FFD8E4;
-        --md-sys-on-tertiary-container: #31111D;
-        --md-sys-error: #B3261E;
-        --md-sys-on-error: #FFFFFF;
-        --md-sys-error-container: #F9DEDC;
-        --md-sys-on-error-container: #410E0B;
-        --md-sys-background: #FFFBFE;
-        --md-sys-on-background: #1C1B1F;
-        --md-sys-surface: #FFFBFE;
-        --md-sys-on-surface: #1C1B1F;
-        --md-sys-surface-variant: #E7E0EC;
-        --md-sys-on-surface-variant: #49454F;
-        --md-sys-outline: #79747E;
+      },
+    }
+  </script>
+  <style>
+    :root {
+      /* One Light Scheme */
+      --md-sys-primary: #4078f2;
+      /* One Light Blue */
+      --md-sys-on-primary: #FFFFFF;
+      --md-sys-primary-container: #dce5fa;
+      --md-sys-on-primary-container: #0b1e45;
+      --md-sys-secondary: #a626a4;
+      /* One Light Purple */
+      --md-sys-on-secondary: #FFFFFF;
+      --md-sys-secondary-container: #f4d9f4;
+      --md-sys-on-secondary-container: #330833;
+      --md-sys-tertiary: #50a14f;
+      /* One Light Green */
+      --md-sys-on-tertiary: #FFFFFF;
+      --md-sys-tertiary-container: #d9f0d9;
+      --md-sys-on-tertiary-container: #0f300f;
+      --md-sys-error: #e45649;
+      /* One Light Red */
+      --md-sys-on-error: #FFFFFF;
+      --md-sys-error-container: #fadad8;
+      --md-sys-on-error-container: #4a100b;
+      --md-sys-background: #fafafa;
+      /* One Light Background */
+      --md-sys-on-background: #383a42;
+      /* One Light Foreground */
+      --md-sys-surface: #ffffff;
+      --md-sys-on-surface: #383a42;
+      --md-sys-surface-variant: #e5e5e6;
+      --md-sys-on-surface-variant: #5c6370;
+      --md-sys-outline: #a0a1a7;
 
-        /* Syntax Highlighting Light */
-        --syntax-keyword: #1d4ed8; /* blue-700 */
-        --syntax-string: #15803d; /* green-700 */
-        --syntax-number: #c2410c; /* orange-700 */
-        --syntax-comment: #6b7280; /* gray-500 */
-        --syntax-default: #1C1B1F;
+      /* Syntax Highlighting Light (One Light) */
+      --syntax-keyword: #a626a4;
+      /* Purple */
+      --syntax-string: #50a14f;
+      /* Green */
+      --syntax-number: #986801;
+      /* Orange */
+      --syntax-comment: #a0a1a7;
+      /* Gray */
+      --syntax-default: #383a42;
+      /* Foreground */
+      --syntax-function: #4078f2;
+      /* Blue */
+      --syntax-variable: #e45649;
+      /* Red */
 
-        /* Diff Colors Light */
-        --diff-add-bg: #E8F5E9;
-        --diff-add-text: #1B5E20;
-        --diff-del-bg: #FFEBEE;
-        --diff-del-text: #B71C1C;
-      }
+      /* Diff Colors Light */
+      --diff-add-bg: #e6ffed;
+      /* Light Green Tint */
+      --diff-add-text: #22863a;
+      --diff-del-bg: #ffeef0;
+      /* Light Red Tint */
+      --diff-del-text: #cb2431;
+    }
 
-      .dark {
-        /* Material Design 3 Dark Scheme */
-        --md-sys-primary: #D0BCFF;
-        --md-sys-on-primary: #381E72;
-        --md-sys-primary-container: #4F378B;
-        --md-sys-on-primary-container: #EADDFF;
-        --md-sys-secondary: #CCC2DC;
-        --md-sys-on-secondary: #332D41;
-        --md-sys-secondary-container: #4A4458;
-        --md-sys-on-secondary-container: #E8DEF8;
-        --md-sys-tertiary: #EFB8C8;
-        --md-sys-on-tertiary: #492532;
-        --md-sys-tertiary-container: #633B48;
-        --md-sys-on-tertiary-container: #FFD8E4;
-        --md-sys-error: #F2B8B5;
-        --md-sys-on-error: #601410;
-        --md-sys-error-container: #8C1D18;
-        --md-sys-on-error-container: #F9DEDC;
-        --md-sys-background: #1C1B1F;
-        --md-sys-on-background: #E6E1E5;
-        --md-sys-surface: #1C1B1F;
-        --md-sys-on-surface: #E6E1E5;
-        --md-sys-surface-variant: #49454F;
-        --md-sys-on-surface-variant: #CAC4D0;
-        --md-sys-outline: #938F99;
+    .dark {
+      /* One Dark Scheme */
+      --md-sys-primary: #61afef;
+      /* One Dark Blue */
+      --md-sys-on-primary: #282c34;
+      --md-sys-primary-container: #2c313a;
+      --md-sys-on-primary-container: #61afef;
+      --md-sys-secondary: #c678dd;
+      /* One Dark Purple */
+      --md-sys-on-secondary: #282c34;
+      --md-sys-secondary-container: #3e4451;
+      --md-sys-on-secondary-container: #c678dd;
+      --md-sys-tertiary: #98c379;
+      /* One Dark Green */
+      --md-sys-on-tertiary: #282c34;
+      --md-sys-tertiary-container: #353b45;
+      --md-sys-on-tertiary-container: #98c379;
+      --md-sys-error: #e06c75;
+      /* One Dark Red */
+      --md-sys-on-error: #282c34;
+      --md-sys-error-container: #3e4451;
+      --md-sys-on-error-container: #e06c75;
+      --md-sys-background: #282c34;
+      /* One Dark Background */
+      --md-sys-on-background: #abb2bf;
+      /* One Dark Foreground */
+      --md-sys-surface: #282c34;
+      --md-sys-on-surface: #abb2bf;
+      --md-sys-surface-variant: #21252b;
+      /* Slightly darker */
+      --md-sys-on-surface-variant: #5c6370;
+      --md-sys-outline: #5c6370;
 
-        /* Syntax Highlighting Dark */
-        --syntax-keyword: #A5B4FC; /* indigo-300 */
-        --syntax-string: #86EFAC; /* green-300 */
-        --syntax-number: #FDBA74; /* orange-300 */
-        --syntax-comment: #9CA3AF; /* gray-400 */
-        --syntax-default: #E6E1E5;
+      /* Syntax Highlighting Dark (One Dark) */
+      --syntax-keyword: #c678dd;
+      /* Purple */
+      --syntax-string: #98c379;
+      /* Green */
+      --syntax-number: #d19a66;
+      /* Orange */
+      --syntax-comment: #5c6370;
+      /* Gray */
+      --syntax-default: #abb2bf;
+      /* Foreground */
+      --syntax-function: #61afef;
+      /* Blue */
+      --syntax-variable: #e06c75;
+      /* Red */
 
-        /* Diff Colors Dark */
-        --diff-add-bg: rgba(22, 163, 74, 0.25);
-        --diff-add-text: #86EFAC;
-        --diff-del-bg: rgba(220, 38, 38, 0.25);
-        --diff-del-text: #FCA5A5;
-      }
+      /* Diff Colors Dark */
+      --diff-add-bg: rgba(152, 195, 121, 0.2);
+      /* Green tint */
+      --diff-add-text: #98c379;
+      --diff-del-bg: rgba(224, 108, 117, 0.2);
+      /* Red tint */
+      --diff-del-text: #e06c75;
+    }
 
-      body {
-        background-color: var(--md-sys-background);
-        color: var(--md-sys-on-background);
-        transition: background-color 0.3s ease, color 0.3s ease;
-      }
-      
-      /* Custom scrollbar for textareas */
-      textarea::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-      }
-      textarea::-webkit-scrollbar-track {
-        background: transparent;
-      }
-      textarea::-webkit-scrollbar-thumb {
-        background-color: var(--md-sys-surface-variant);
-        border-radius: 4px;
-      }
-      textarea::-webkit-scrollbar-thumb:hover {
-        background-color: var(--md-sys-outline);
-      }
-    </style>
+    body {
+      background-color: var(--md-sys-background);
+      color: var(--md-sys-on-background);
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* Custom scrollbar for textareas */
+    textarea::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    textarea::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    textarea::-webkit-scrollbar-thumb {
+      background-color: var(--md-sys-surface-variant);
+      border-radius: 4px;
+    }
+
+    textarea::-webkit-scrollbar-thumb:hover {
+      background-color: var(--md-sys-outline);
+    }
+  </style>
 </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
-  </body>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+
 </html>
