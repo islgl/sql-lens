@@ -5,7 +5,7 @@ import { SqlDialect } from './sqlDialects';
 import { validateSql, ValidationError } from '../utils/sqlValidator';
 import { format } from 'sql-formatter';
 import CodeMirror, { EditorView, Decoration, DecorationSet, ViewPlugin, ViewUpdate } from '@uiw/react-codemirror';
-import { sql, StandardSQL, MySQL, PostgreSQL } from '@codemirror/lang-sql';
+import { sql, StandardSQL, MySQL, PostgreSQL, keywordCompletionSource } from '@codemirror/lang-sql';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { oneLight } from './oneLight';
 import { granularFold } from '../utils/granularFold';
@@ -80,6 +80,7 @@ export const SqlEditor: React.FC<SqlEditorProps> = ({
   isDarkMode = false
 }) => {
   const [copied, setCopied] = useState(false);
+  const [formatted, setFormatted] = useState(false);
   const [errors, setErrors] = useState<ValidationError[]>([]);
 
   useEffect(() => {
@@ -121,12 +122,14 @@ export const SqlEditor: React.FC<SqlEditorProps> = ({
   const handleFormat = () => {
     if (!value) return;
     try {
-      const formatted = format(value, {
+      const formattedSql = format(value, {
         language: dialect === 'standard' ? 'sql' : dialect as any,
         tabWidth: 2,
         keywordCase: 'upper',
       });
-      onChange(formatted);
+      onChange(formattedSql);
+      setFormatted(true);
+      setTimeout(() => setFormatted(false), 2000);
     } catch (err) {
       console.error('Failed to format!', err);
     }
@@ -140,8 +143,17 @@ export const SqlEditor: React.FC<SqlEditorProps> = ({
         spark: StandardSQL // Spark is not explicitly supported, fallback to Standard
       };
       
+      const currentDialect = dialectMap[dialect] || StandardSQL;
+
       const exts = [
-        sql({ dialect: dialectMap[dialect] || StandardSQL }),
+        sql({ 
+            dialect: currentDialect,
+            // Override default schema-based completions with just keyword completion
+            schema: {},
+        }),
+        currentDialect.language.data.of({
+            autocomplete: keywordCompletionSource(currentDialect, true)
+        }),
         granularFold
       ];
       if (diff && diff.length > 0) {
@@ -159,9 +171,9 @@ export const SqlEditor: React.FC<SqlEditorProps> = ({
   }, [isDarkMode]);
 
   return (
-    <div className="flex flex-col h-full bg-md-sys-surface md:bg-md-sys-surface/50 relative group transition-all duration-300">
+    <div className="flex flex-col h-full bg-md-sys-surface relative group transition-all duration-300">
       {/* Header / Toolbar */}
-      <div className="px-5 py-3 flex justify-between items-center border-b border-md-sys-outline/10 bg-md-sys-surface/50 backdrop-blur-sm">
+      <div className="px-5 py-3 flex justify-between items-center border-b-2 border-md-sys-outline/10 bg-md-sys-surface/50 backdrop-blur-sm">
         <div className="flex items-center gap-3">
           <div className={`w-3 h-3 rounded-full ${mode === 'original' ? 'bg-red-400' : 'bg-green-400'}`} />
           <span className="text-sm font-medium text-md-sys-onSurfaceVariant tracking-wide">
@@ -180,24 +192,31 @@ export const SqlEditor: React.FC<SqlEditorProps> = ({
             onClick={handleFormat}
             disabled={!value}
             className={`
-              flex items-center justify-center w-8 h-8 rounded-full transition-all duration-200
-              ${!value ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer text-md-sys-onSurfaceVariant hover:bg-md-sys-onSurfaceVariant/10'}
+              flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300
+              ${formatted
+                ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300'
+                : !value 
+                  ? 'opacity-30 cursor-not-allowed text-md-sys-onSurfaceVariant' 
+                  : 'cursor-pointer text-md-sys-onSurfaceVariant hover:bg-indigo-100 hover:text-indigo-600 dark:hover:bg-indigo-900/30 dark:hover:text-indigo-400'
+              }
             `}
             title="Format SQL"
           >
-            <Wand2 size={16} />
+            <Check size={16} className={formatted ? "scale-100" : "scale-0 hidden"} />
+            <Wand2 size={16} className={formatted ? "scale-0 hidden" : "scale-100"} />
           </button>
 
           <button  
             onClick={handleCopy}
             disabled={!value}
             className={`
-              flex items-center justify-center w-8 h-8 rounded-full transition-all duration-200
+              flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300
               ${copied 
                 ? 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300' 
-                : 'text-md-sys-onSurfaceVariant hover:bg-md-sys-onSurfaceVariant/10'
+                : !value 
+                  ? 'opacity-30 cursor-not-allowed text-md-sys-onSurfaceVariant' 
+                  : 'cursor-pointer text-md-sys-onSurfaceVariant hover:bg-emerald-100 hover:text-emerald-600 dark:hover:bg-emerald-900/30 dark:hover:text-emerald-400'
               }
-              ${!value ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}
             `}
             title="Copy to clipboard"
           >
@@ -228,7 +247,7 @@ export const SqlEditor: React.FC<SqlEditorProps> = ({
 
       {/* Error Panel */}
       {errors.length > 0 && (
-        <div className="shrink-0 border-t border-md-sys-error/20 bg-md-sys-errorContainer/10 max-h-32 overflow-y-auto backdrop-blur-sm transition-all duration-300">
+        <div className="shrink-0 border-t-2 border-md-sys-error/20 bg-md-sys-errorContainer/10 max-h-32 overflow-y-auto backdrop-blur-sm transition-all duration-300">
           {errors.map((err, i) => (
             <div key={i} className="px-5 py-2 flex items-start gap-2 text-xs text-md-sys-error hover:bg-md-sys-errorContainer/20 transition-colors border-b border-md-sys-error/5 last:border-0 font-mono">
               <AlertCircle size={14} className="shrink-0 mt-0.5" />
